@@ -1,4 +1,4 @@
-# Honorářová kalkulačka kameramana (AČK)
+# Honorář kameramana na filmu (AČK)
 
 Webová kalkulačka, která počítá honorář kameramana zvlášť za **přípravu, natáčení a postprodukci** a ukazuje, kolik vychází na jeden odpracovaný den.
 
@@ -6,8 +6,8 @@ Výchozí denní sazby jsou mediány z dotazníku Asociace českých kameramanů
 
 ## Co umí
 
-- 7 typů projektů (TV film, seriál, sekvenční natáčení, přenos, hodinový dokument, dva typy dokumentárních cyklů) s důstojnou a minimální sazbou podle průzkumu
-- příprava a postprodukce jako počet dní × procento denní sazby (výchozí 50 %)
+- kalkulace pro film: denní sazba podle průzkumu AČK pro TV film (důstojná 15 000 Kč, minimální 12 000 Kč), lze přepsat
+- příprava a postprodukce jako počet dní × **pevné minimum 50 % denní sazby**; tato procenta v aplikaci nejdou změnit
 - návrh počtu přípravných dní (1,2 dne na natáčecí den)
 - příplatek za švenkování, když si hlavní kameraman švenkuje sám
 - přesčasy, noční dny, víkendy a svátky, cestovní dny
@@ -27,4 +27,4 @@ Vše běží v prohlížeči, nic se neodesílá. Aplikace je jediný soubor `in
 
 ## Úprava sazeb
 
-Sazby z průzkumu jsou v `index.html` v poli `CATS`, výchozí procenta příplatků v objektu `DEFAULTS` a podíly štábu v poli `CREW`. Výše příplatků za noc, víkend, přesčasy a cestovní dny je zatím návrh k diskusi v AČK.
+Pevná minima pro přípravu a postprodukci jsou v `index.html` v konstantách `PREP_PCT` a `POST_PCT`, denní sazby v poli `CATS`, výchozí procenta příplatků v objektu `DEFAULTS` a podíly štábu v poli `CREW`. Výše příplatků za noc, víkend, přesčasy a cestovní dny je zatím návrh k diskusi v AČK.

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Honorářová kalkulačka AČK</title>
-<meta name="description" content="Spočítejte honorář kameramana zvlášť za přípravu, natáčení a postprodukci. Výchozí sazby vycházejí z průzkumu AČK 2024.">
+<title>Filmová kalkulačka AČK</title>
+<meta name="description" content="Spočítejte honorář kameramana na filmu zvlášť za přípravu, natáčení a postprodukci. Sazby vycházejí z průzkumu AČK 2024.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
@@ -76,6 +76,10 @@ input[type=number],select{
 input[type=number]:focus,select:focus,button:focus-visible,input[type=checkbox]:focus-visible{outline:3px solid var(--prep);outline-offset:1px}
 .check{display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:15px;margin-top:14px}
 .check input{margin-top:4px;width:18px;height:18px;accent-color:var(--rec)}
+.fixed{font-size:14px;color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:8px 10px}
+.fixed > span,.fixed small{display:block}
+.fixed strong{display:block;color:var(--ink);font-size:16px;font-variant-numeric:tabular-nums}
+.fixed small{font-size:13px}
 .unit{position:relative}
 .unit input{padding-right:46px}
 .unit::after{content:attr(data-u);position:absolute;right:10px;bottom:9px;color:var(--muted);font-size:14px;pointer-events:none}
@@ -151,20 +155,17 @@ footer p{max-width:72ch;margin:0 0 10px}
 <body>
 <div class="wrap">
   <header>
-    <h1>Honorářová kalkulačka kameramana</h1>
-    <p class="lede">Příprava, natáčení a postprodukce jsou tři různé práce. Kalkulačka je spočítá zvlášť a ukáže, kolik vychází na jeden odpracovaný den. Výchozí sazby jsou mediány z průzkumu Asociace českých kameramanů z roku 2024.</p>
+    <h1>Honorář kameramana na filmu</h1>
+    <p class="lede">Příprava, natáčení a postprodukce jsou tři různé práce. Kalkulačka je spočítá zvlášť a ukáže, kolik vychází na jeden odpracovaný den. Denní sazba vychází z průzkumu Asociace českých kameramanů z roku 2024, sazby za přípravu a postprodukci jsou pevná minima AČK.</p>
   </header>
 
   <div class="grid">
     <form id="f" autocomplete="off" onsubmit="return false">
 
       <section class="phase" data-k="base" aria-labelledby="h-base">
-        <h2 id="h-base">Projekt a denní sazba</h2>
-        <p class="hint">Vyberte typ projektu. Denní sazba se doplní podle průzkumu AČK a můžete ji přepsat.</p>
+        <h2 id="h-base">Denní sazba</h2>
+        <p class="hint">Denní sazba je medián z průzkumu AČK pro TV film. Můžete ji přepsat.</p>
         <div class="row">
-          <label><span>Typ projektu</span>
-            <select id="cat"></select>
-          </label>
           <label><span>Úroveň sazby</span>
             <div class="seg" role="group" aria-label="Úroveň sazby">
               <button type="button" data-level="aday" aria-pressed="true">Důstojná</button>
@@ -182,7 +183,7 @@ footer p{max-width:72ch;margin:0 0 10px}
         <p class="hint">Obhlídky, kamerové testy, technické schůzky, práce s režisérem. Kameramani v průzkumu odhadují 1 až 1,5 dne přípravy na každý natáčecí den.</p>
         <div class="row">
           <label><span>Přípravné dny</span><input type="number" id="prepDays" min="0" step="1" inputmode="numeric"></label>
-          <label><span>Sazba za přípravný den</span><div class="unit" data-u="%"><input type="number" id="prepPct" min="0" max="200" step="5" inputmode="numeric"></div></label>
+          <div class="fixed"><span>Sazba za přípravný den</span><strong><span id="prepPctOut">50</span> % denní sazby</strong><small>Pevné minimum AČK, nelze snížit.</small></div>
         </div>
         <button type="button" class="btn ghost" id="suggestPrep" style="margin-top:12px">Doplnit 1,2 dne na natáčecí den</button>
       </section>
@@ -205,7 +206,7 @@ footer p{max-width:72ch;margin:0 0 10px}
         <p class="hint">Color grading, kontrola masteru, VFX konzultace, schvalování kopií.</p>
         <div class="row">
           <label><span>Dny postprodukce</span><input type="number" id="postDays" min="0" step="1" inputmode="numeric"></label>
-          <label><span>Sazba za den postprodukce</span><div class="unit" data-u="%"><input type="number" id="postPct" min="0" max="200" step="5" inputmode="numeric"></div></label>
+          <div class="fixed"><span>Sazba za den postprodukce</span><strong><span id="postPctOut">50</span> % denní sazby</strong><small>Pevné minimum AČK, nelze snížit.</small></div>
         </div>
       </section>
 
@@ -275,26 +276,22 @@ footer p{max-width:72ch;margin:0 0 10px}
 <script>
 (() => {
   // Mediány z průzkumu AČK 2024 (Kč za natáčecí den)
+  // Pevná minima AČK pro přípravu a postprodukci (% denní sazby) – v aplikaci je nelze měnit
+  const PREP_PCT = 50, POST_PCT = 50;
   const CATS = [
     {id:"film",  name:"TV film",                     aday:15000, mday:12000, shoot:25, prep:30, post:7},
-    {id:"ser",   name:"TV seriál",                   aday:15000, mday:10000, shoot:40, prep:30, post:10},
-    {id:"seq",   name:"Sekvenční natáčení",          aday:10500, mday:8000,  shoot:60, prep:10, post:5},
-    {id:"bro",   name:"TV přenos",                   aday:12000, mday:9750,  shoot:3,  prep:2,  post:0},
-    {id:"doc",   name:"Hodinový dokument",           aday:10000, mday:8000,  shoot:10, prep:5,  post:3},
-    {id:"dos",   name:"Jednorázový dokumentární cyklus", aday:8000, mday:6250, shoot:20, prep:8, post:5},
-    {id:"pub",   name:"Permanentní dokumentární cyklus", aday:8000, mday:6000, shoot:4, prep:1, post:1},
   ];
-  const DEFAULTS = {cat:"film", level:"aday", prepPct:50, postPct:50, shift:10, operate:false, opPct:60,
+  const DEFAULTS = {cat:"film", level:"aday", shift:10, operate:false, opPct:60,
     otHours:0, otPct:150, nightDays:0, nightPct:25, holDays:0, holPct:50, travelDays:0, travelPct:50, flat:0, vat:false};
   const CREW = [["Švenkr",62.5],["Ostřič (1. asistent)",40],["2. asistent kamery",30]];
-  const NUM = ["rate","prepDays","prepPct","shootDays","shift","opPct","postDays","postPct","otHours","otPct","nightDays","nightPct","holDays","holPct","travelDays","travelPct","flat"];
+  const NUM = ["rate","prepDays","shootDays","shift","opPct","postDays","otHours","otPct","nightDays","nightPct","holDays","holPct","travelDays","travelPct","flat"];
   const $ = id => document.getElementById(id);
   const kc = n => Math.round(n).toLocaleString("cs-CZ") + " Kč";
   const v = id => Math.max(0, parseFloat($(id).value) || 0);
   let level = "aday";
 
-  const sel = $("cat");
-  CATS.forEach(c => sel.add(new Option(c.name, c.id)));
+  const sel = {value: "film"}; // kalkulačka je jen pro film
+  $("prepPctOut").textContent = PREP_PCT; $("postPctOut").textContent = POST_PCT;
 
   function setLevel(l){
     level = l;
@@ -307,7 +304,6 @@ footer p{max-width:72ch;margin:0 0 10px}
   }
   function load(state){
     const s = {...DEFAULTS, ...state};
-    sel.value = CATS.some(c => c.id === s.cat) ? s.cat : "film";
     setLevel(s.level === "mday" ? "mday" : "aday");
     applyCat(false);
     NUM.forEach(k => { if(s[k] !== undefined) $(k).value = s[k]; });
@@ -324,10 +320,10 @@ footer p{max-width:72ch;margin:0 0 10px}
 
   function calc(){
     const rate = v("rate"), sd = v("shootDays");
-    const prep = v("prepDays") * rate * v("prepPct")/100;
+    const prep = v("prepDays") * rate * PREP_PCT/100;
     const shoot = sd * rate;
     const op = $("operate").checked ? sd * rate * v("opPct")/100 : 0;
-    const post = v("postDays") * rate * v("postPct")/100;
+    const post = v("postDays") * rate * POST_PCT/100;
     const hourly = rate / Math.max(1, v("shift"));
     const extra = v("otHours") * hourly * v("otPct")/100
                 + v("nightDays") * rate * v("nightPct")/100
@@ -344,10 +340,10 @@ footer p{max-width:72ch;margin:0 0 10px}
     $("total").innerHTML = Math.round(r.total).toLocaleString("cs-CZ") + "<small>Kč</small>";
     $("perDay").textContent = r.days ? `${r.days} odpracovaných dní, v průměru ${kc(r.total / r.days)} za den` : "Zadejte počet dní.";
     const parts = [
-      ["Příprava", r.prep, "var(--prep)", `${v("prepDays")} dní × ${v("prepPct")} % sazby`],
+      ["Příprava", r.prep, "var(--prep)", `${v("prepDays")} dní × ${PREP_PCT} % sazby`],
       ["Natáčení", r.shoot, "#DDE3EA", `${v("shootDays")} dní × ${kc(r.rate)}`],
       ["Švenkování", r.op, "#7A8796", `${v("opPct")} % sazby za natáčecí den`],
-      ["Postprodukce", r.post, "var(--post)", `${v("postDays")} dní × ${v("postPct")} % sazby`],
+      ["Postprodukce", r.post, "var(--post)", `${v("postDays")} dní × ${POST_PCT} % sazby`],
       ["Příplatky", r.extra, "var(--extra)", `přesčasová hodina ${kc(r.hourly * v("otPct")/100)}`],
     ].filter(p => p[1] > 0 || p[0] === "Natáčení");
     $("bar").innerHTML = parts.map(p => `<span style="width:${r.total ? p[1]/r.total*100 : 0}%;background:${p[2]}"></span>`).join("");
@@ -375,11 +371,11 @@ footer p{max-width:72ch;margin:0 0 10px}
     const L = [
       `Honorář kameramana – ${c.name}`,
       `Denní sazba: ${kc(r.rate)}`,
-      `Příprava: ${v("prepDays")} dní × ${v("prepPct")} % = ${kc(r.prep)}`,
+      `Příprava: ${v("prepDays")} dní × ${PREP_PCT} % = ${kc(r.prep)}`,
       `Natáčení: ${v("shootDays")} dní = ${kc(r.shoot)}`,
     ];
     if(r.op) L.push(`Švenkování: ${v("opPct")} % za natáčecí den = ${kc(r.op)}`);
-    L.push(`Postprodukce: ${v("postDays")} dní × ${v("postPct")} % = ${kc(r.post)}`);
+    L.push(`Postprodukce: ${v("postDays")} dní × ${POST_PCT} % = ${kc(r.post)}`);
     if(r.extra) L.push(`Příplatky: ${kc(r.extra)}`);
     L.push(`Celkem bez DPH: ${kc(r.total)}`);
     if($("vat").checked) L.push(`Celkem s DPH 21 %: ${kc(r.total * 1.21)}`);
@@ -396,7 +392,6 @@ footer p{max-width:72ch;margin:0 0 10px}
     }catch(e){ $("toast").textContent = "Kopírování se nepodařilo. Označte text ručně."; }
   }
 
-  sel.addEventListener("change", () => { applyCat(false); render(); });
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { setLevel(b.dataset.level); applyCat(true); render(); }));
   $("f").addEventListener("input", render);
   $("vat").addEventListener("change", render);
