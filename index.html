@@ -7,7 +7,7 @@
 <meta name="description" content="Spočítejte honorář kameramana zvlášť za přípravu, natáčení a postprodukci. Výchozí sazby vycházejí z průzkumu AČK 2024.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   /* paleta webu AČK (ceskam.cz) */
@@ -35,7 +35,7 @@
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--bg);color:var(--ink);
-  font-family:"Archivo",system-ui,sans-serif;font-variation-settings:"wdth" 100;
+  font-family:"Open Sans",system-ui,sans-serif;
   font-size:16px;line-height:1.5;
 }
 a{color:inherit}
@@ -45,7 +45,7 @@ a{color:inherit}
 header{padding:40px 0 24px}
 h1{
   font-size:clamp(34px,6vw,60px);line-height:1.02;margin:0 0 12px;
-  font-weight:800;font-variation-settings:"wdth" 62;letter-spacing:-.01em;max-width:14ch;
+  font-family:"Antonio","Arial Narrow",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0;max-width:16ch;
 }
 .lede{color:var(--muted);max-width:60ch;margin:0}
 
@@ -61,10 +61,10 @@ h1{
 .phase[data-k="post"]{--c:var(--post)}
 .phase[data-k="extra"]{--c:var(--extra)}
 .phase h2{
-  margin:0 0 4px;font-size:22px;font-weight:700;font-variation-settings:"wdth" 80;
+  margin:0 0 4px;font-family:"Antonio","Arial Narrow",sans-serif;font-size:28px;line-height:1.1;font-weight:700;
   display:flex;gap:10px;align-items:baseline;
 }
-.phase h2 .n{font-variation-settings:"wdth" 62;color:var(--c);font-weight:800}
+.phase h2 .n{color:var(--c)}
 .phase .hint{color:var(--muted);font-size:14px;margin:0 0 16px;max-width:62ch}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px}
 label{display:block;font-size:14px;color:var(--muted)}
@@ -98,10 +98,10 @@ input[type=number]:focus,select:focus,button:focus-visible,input[type=checkbox]:
 @keyframes pulse{from{box-shadow:0 0 0 0 rgba(217,45,32,.7)}to{box-shadow:0 0 0 12px rgba(217,45,32,0)}}
 @media (prefers-reduced-motion:reduce){.rec.pulse i{animation:none}}
 .total{
-  font-size:clamp(40px,9vw,58px);font-weight:800;font-variation-settings:"wdth" 125;
+  font-family:"Antonio","Arial Narrow",sans-serif;font-size:clamp(48px,10vw,68px);font-weight:700;
   font-variant-numeric:tabular-nums;line-height:1;margin:18px 0 6px;letter-spacing:-.02em;white-space:nowrap;
 }
-.total small{font-size:.38em;font-weight:600;font-variation-settings:"wdth" 100;margin-left:6px}
+.total small{font-size:.4em;margin-left:6px}
 .sub{color:#9AA6B4;font-size:14px;margin:0 0 18px}
 .bar{display:flex;height:14px;border-radius:3px;overflow:hidden;background:#2A3442;margin-bottom:14px}
 .bar span{display:block;height:100%;transition:width .25s}
@@ -115,7 +115,7 @@ input[type=number]:focus,select:focus,button:focus-visible,input[type=checkbox]:
 .vat{margin-top:12px;padding-top:12px;border-top:1px solid #263040;display:flex;justify-content:space-between;font-size:15px}
 
 .box{background:var(--panel);border-radius:var(--radius);padding:18px 20px;margin-top:16px}
-.box h3{margin:0 0 6px;font-size:18px;font-variation-settings:"wdth" 80}
+.box h3{margin:0 0 6px;font-family:"Antonio","Arial Narrow",sans-serif;font-size:22px;font-weight:700}
 .box p{margin:0 0 10px;font-size:15px}
 .cmp{font-variant-numeric:tabular-nums}
 .verdict{font-weight:700}
@@ -133,7 +133,7 @@ input[type=number]:focus,select:focus,button:focus-visible,input[type=checkbox]:
 @media (max-width:900px){
   .mini{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;justify-content:space-between;align-items:center;
     background:var(--readout);color:var(--readout-ink);padding:12px 16px;font-variant-numeric:tabular-nums}
-  .mini strong{font-size:22px;font-variation-settings:"wdth" 125}
+  .mini strong{font-family:"Antonio","Arial Narrow",sans-serif;font-size:26px}
   .mini a{font-size:14px;color:#9AA6B4}
   body{padding-bottom:64px}
 }
