@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TEST – Honorářová kalkulačka AČK</title>
+<title>Obolus – Honorářová kalkulačka AČK</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Testovací verze honorářové kalkulačky AČK. Všechny částky jsou smyšlené.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -154,7 +154,7 @@ footer p{max-width:72ch;margin:0 0 10px}
 /* ===== TESTOVACÍ REŽIM ===== */
 :root{--test:#FFD400}
 body{
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160'%3E%3Ctext x='20' y='100' transform='rotate(-24 120 80)' font-family='Arial,sans-serif' font-size='64' font-weight='700' fill='%23393838' fill-opacity='.07'%3ETEST%3C/text%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='180'%3E%3Ctext x='10' y='110' transform='rotate(-20 160 90)' font-family='Arial,sans-serif' font-size='56' font-weight='700' fill='%23393838' fill-opacity='.07'%3EOBOLUS%3C/text%3E%3C/svg%3E");
   background-attachment:fixed;
 }
 .testbar{
@@ -172,7 +172,7 @@ body{
 .screen{outline:6px solid var(--test);outline-offset:-6px}
 .screen .top{justify-content:flex-start}
 .screen .top #vatLabel{margin-left:auto}
-.screen .top::after{content:"TEST";background:var(--test);color:#1A1A1A;font-weight:700;padding:2px 8px;margin-left:8px}
+.screen .top::after{content:"OBOLUS";background:var(--test);color:#1A1A1A;font-weight:700;padding:2px 8px;margin-left:8px}
 .phase,.box{box-shadow:inset 0 0 0 2px rgba(255,212,0,.9)}
 .mini{border-top:6px solid var(--test)}
 @media print{
@@ -184,14 +184,14 @@ body{
 <body>
 <div class="testbar" role="note">
   <div class="in">
-    <strong>TESTOVACÍ VERZE – částky nejsou skutečné</strong>
+    <strong>TESTOVACÍ VERZE – částky v obolech, ne v korunách</strong>
     <a href="../">Přejít na ostrou verzi</a>
   </div>
 </div>
 <div class="wrap">
   <header>
-    <h1>Honorářová kalkulačka kameramana (test)</h1>
-    <p class="lede">Příprava, natáčení a postprodukce jsou tři různé práce. Kalkulačka je spočítá zvlášť a ukáže, kolik vychází na jeden odpracovaný den. V testovací verzi jsou všechny sazby smyšlené a počítají se v jednotkách TEST místo korun. Příprava a postprodukce se platí nejméně 50 % denní sazby.</p>
+    <h1>Honorářová kalkulačka kameramana (obolus)</h1>
+    <p class="lede">Příprava, natáčení a postprodukce jsou tři různé práce. Kalkulačka je spočítá zvlášť a ukáže, kolik vychází na jeden odpracovaný den. V testovací verzi se nepočítá v korunách, ale v obolech: jeden obolus je důstojná sazba za jeden natáčecí den. Příprava a postprodukce se platí nejméně 50 % denní sazby.</p>
   </header>
 
   <div class="grid">
@@ -199,7 +199,7 @@ body{
 
       <section class="phase" data-k="base" aria-labelledby="h-base">
         <h2 id="h-base">Projekt a denní sazba</h2>
-        <p class="hint">Vyberte typ projektu. Denní sazba se doplní testovací hodnotou a můžete ji přepsat.</p>
+        <p class="hint">Vyberte typ projektu. Důstojná sazba je 1 obolus za natáčecí den, minimální 0,8 obolu. Můžete ji přepsat.</p>
         <div class="row">
           <label><span>Typ projektu</span>
             <select id="cat"></select>
@@ -211,7 +211,7 @@ body{
             </div>
           </label>
           <label><span>Denní sazba za natáčecí den</span>
-            <div class="unit" data-u="TEST"><input type="number" id="rate" min="0" step="5" inputmode="numeric"></div>
+            <div class="unit" data-u="obolů"><input type="number" id="rate" min="0" step="0.1" inputmode="numeric"></div>
           </label>
         </div>
       </section>
@@ -264,11 +264,11 @@ body{
       </section>
     </form>
 
-    <div class="mini"><a href="#vysledek">Honorář celkem</a><strong id="miniTotal">0 TEST</strong></div>
+    <div class="mini"><a href="#vysledek">Honorář celkem</a><strong id="miniTotal">0 obolů</strong></div>
     <aside class="readout" id="vysledek" aria-live="polite">
       <div class="screen">
         <div class="top"><span class="rec" id="rec"><i aria-hidden="true"></i> Honorář celkem</span><span id="vatLabel">bez DPH</span></div>
-        <div class="total" id="total">0<small>TEST</small></div>
+        <div class="total" id="total">0<small>obolů</small></div>
         <p class="sub" id="perDay"></p>
         <div class="bar" id="bar" aria-hidden="true"></div>
         <ul class="legend" id="legend"></ul>
@@ -282,7 +282,7 @@ body{
       <div class="box">
         <h3>Srovnání s nabízeným paušálem</h3>
         <p style="color:var(--muted)">Zadejte paušál z nabídky produkce. Kalkulačka ho rozpočítá na všechny odpracované dny.</p>
-        <label><span>Nabízený paušál</span><div class="unit" data-u="TEST"><input type="number" id="flat" min="0" step="10" inputmode="numeric"></div></label>
+        <label><span>Nabízený paušál</span><div class="unit" data-u="obolů"><input type="number" id="flat" min="0" step="0.5" inputmode="numeric"></div></label>
         <div id="cmp" class="cmp" style="margin-top:12px"></div>
       </div>
 
@@ -305,31 +305,37 @@ body{
 
 <footer>
   <div class="wrap">
-    <p>Testovací verze. Všechny sazby a částky jsou smyšlené, uvádějí se v jednotkách TEST a neodpovídají průzkumu AČK ani skutečným honorářům. Slouží jen k vyzkoušení ovládání a výpočtu.</p>
+    <p>Testovací verze. Všechny sazby a částky jsou smyšlené, uvádějí se v obolech (1 obolus = důstojná sazba za natáčecí den) a neodpovídají průzkumu AČK ani skutečným honorářům. Slouží jen k vyzkoušení ovládání a výpočtu.</p>
     <p class="noprint">Asociace českých kameramanů. Výpočet probíhá jen ve vašem prohlížeči, nic se neodesílá.</p>
   </div>
 </footer>
 
 <script>
 (() => {
-  // TESTOVACÍ REŽIM: smyšlené sazby v jednotkách TEST, neodpovídají průzkumu
+  // TESTOVACÍ REŽIM: sazby v obolech (1 obolus = důstojná sazba za natáčecí den), neodpovídají průzkumu
   // Minimum AČK pro přípravu a postprodukci (% denní sazby); nižší hodnotu aplikace nepřijme
   const MIN_PCT = 50;
   const CATS = [
-    {id:"film",  name:"Film",                     aday:100, mday:80, shoot:25, prep:30, post:7},
-    {id:"ser",   name:"TV seriál",                   aday:100, mday:80, shoot:40, prep:30, post:10},
-    {id:"seq",   name:"Sekvenční natáčení",          aday:100, mday:80,  shoot:60, prep:10, post:5},
-    {id:"bro",   name:"TV přenos",                   aday:100, mday:80,  shoot:3,  prep:2,  post:0},
-    {id:"doc",   name:"Hodinový dokument",           aday:100, mday:80,  shoot:10, prep:5,  post:3},
-    {id:"dos",   name:"Jednorázový dokumentární cyklus", aday:100, mday:80, shoot:20, prep:8, post:5},
-    {id:"pub",   name:"Permanentní dokumentární cyklus", aday:100, mday:80, shoot:4, prep:1, post:1},
+    {id:"film",  name:"Film",                     aday:1, mday:0.8, shoot:25, prep:30, post:7},
+    {id:"ser",   name:"TV seriál",                   aday:1, mday:0.8, shoot:40, prep:30, post:10},
+    {id:"seq",   name:"Sekvenční natáčení",          aday:1, mday:0.8,  shoot:60, prep:10, post:5},
+    {id:"bro",   name:"TV přenos",                   aday:1, mday:0.8,  shoot:3,  prep:2,  post:0},
+    {id:"doc",   name:"Hodinový dokument",           aday:1, mday:0.8,  shoot:10, prep:5,  post:3},
+    {id:"dos",   name:"Jednorázový dokumentární cyklus", aday:1, mday:0.8, shoot:20, prep:8, post:5},
+    {id:"pub",   name:"Permanentní dokumentární cyklus", aday:1, mday:0.8, shoot:4, prep:1, post:1},
   ];
   const DEFAULTS = {cat:"film", level:"aday", prepPct:50, postPct:50, shift:10, operate:false, opPct:60,
     otHours:0, otPct:150, nightDays:0, nightPct:25, holDays:0, holPct:50, travelDays:0, travelPct:50, flat:0, vat:false};
   const CREW = [["Švenkr",62.5],["Ostřič (1. asistent)",40],["2. asistent kamery",30]];
   const NUM = ["rate","prepDays","prepPct","shootDays","shift","opPct","postDays","postPct","otHours","otPct","nightDays","nightPct","holDays","holPct","travelDays","travelPct","flat"];
   const $ = id => document.getElementById(id);
-  const kc = n => Math.round(n).toLocaleString("cs-CZ") + " TEST";
+  const num = n => (Math.round(n * 100) / 100).toLocaleString("cs-CZ", {maximumFractionDigits: 2});
+  const word = n => { const r = Math.round(n * 100) / 100;
+    if(!Number.isInteger(r)) return "obolu";
+    if(r === 1) return "obolus";
+    if(r >= 2 && r <= 4) return "oboly";
+    return "obolů"; };
+  const kc = n => num(n) + " " + word(n);
   const v = id => Math.max(0, parseFloat($(id).value) || 0);
   const pct = id => Math.max(MIN_PCT, v(id));
   function clampPct(){
@@ -389,7 +395,7 @@ body{
   function render(){
     const r = calc();
     $("miniTotal").textContent = kc(r.total);
-    $("total").innerHTML = Math.round(r.total).toLocaleString("cs-CZ") + "<small>TEST</small>";
+    $("total").innerHTML = num(r.total) + "<small>" + word(r.total) + "</small>";
     $("perDay").textContent = r.days ? `${r.days} odpracovaných dní, v průměru ${kc(r.total / r.days)} za den` : "Zadejte počet dní.";
     const parts = [
       ["Příprava", r.prep, "#3FA7BF", `${v("prepDays")} dní × ${pct("prepPct")} % sazby`],

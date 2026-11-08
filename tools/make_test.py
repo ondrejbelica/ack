@@ -66,7 +66,7 @@ rep('id="flat" min="0" step="1000"','id="flat" min="0" step="10"')
 
 # smyšlené sazby: všechny kategorie stejně, důstojná 100, minimální 80
 s=re.sub(r'aday:\s*\d+,\s*mday:\s*\d+,','aday:100, mday:80,',s)
-rep('// Mediány z průzkumu AČK 2024 (Kč za natáčecí den)','// TESTOVACÍ REŽIM: smyšlené sazby v jednotkách TEST, neodpovídají průzkumu')
+rep('// Mediány z průzkumu AČK 2024 (Kč za natáčecí den)','// TESTOVACÍ REŽIM: sazby v obolech (1 obolus = důstojná sazba za natáčecí den), neodpovídají průzkumu')
 
 # patička
 s=re.sub(r'<p>Výchozí denní sazby jsou mediány.*?</p>\s*<p>Pro srovnání:.*?</p>',
@@ -77,7 +77,36 @@ rep("Hodnoty jsou nastavené podle průzkumu.","Hodnoty jsou nastavené na testo
 rep('`Honorář kameramana – ${c.name}`','`TESTOVACÍ VERZE (smyšlené částky) – Honorář kameramana – ${c.name}`')
 rep('"Spočítáno honorářovou kalkulačkou AČK: "','"Spočítáno testovací verzí kalkulačky AČK: "')
 
+# ===== jednotka OBOLUS: 1 obolus = důstojná sazba za jeden natáčecí den =====
+s=s.replace('aday:100, mday:80,','aday:1, mday:0.8,')
+rep('const kc = n => Math.round(n).toLocaleString("cs-CZ") + " TEST";',
+"""const num = n => (Math.round(n * 100) / 100).toLocaleString("cs-CZ", {maximumFractionDigits: 2});
+  const word = n => { const r = Math.round(n * 100) / 100;
+    if(!Number.isInteger(r)) return "obolu";
+    if(r === 1) return "obolus";
+    if(r >= 2 && r <= 4) return "oboly";
+    return "obolů"; };
+  const kc = n => num(n) + " " + word(n);""")
+rep('$("total").innerHTML = Math.round(r.total).toLocaleString("cs-CZ") + "<small>TEST</small>";',
+    '$("total").innerHTML = num(r.total) + "<small>" + word(r.total) + "</small>";')
+rep('<small>TEST</small>','<small>obolů</small>')
+rep('<strong id="miniTotal">0 TEST</strong>','<strong id="miniTotal">0 obolů</strong>')
+rep('data-u="TEST"','data-u="obolů"')
+rep('id="rate" min="0" step="5"','id="rate" min="0" step="0.1"')
+rep('id="flat" min="0" step="10"','id="flat" min="0" step="0.5"')
+rep('<h1>Honorářová kalkulačka kameramana (test)</h1>','<h1>Honorářová kalkulačka kameramana (obolus)</h1>')
+rep('V testovací verzi jsou všechny sazby smyšlené a počítají se v jednotkách TEST místo korun.',
+    'V testovací verzi se nepočítá v korunách, ale v obolech: jeden obolus je důstojná sazba za jeden natáčecí den.')
+rep('Denní sazba se doplní testovací hodnotou a můžete ji přepsat.',
+    'Důstojná sazba je 1 obolus za natáčecí den, minimální 0,8 obolu. Můžete ji přepsat.')
+rep('uvádějí se v jednotkách TEST a neodpovídají','uvádějí se v obolech (1 obolus = důstojná sazba za natáčecí den) a neodpovídají')
+rep('.screen .top::after{content:"TEST";','.screen .top::after{content:"OBOLUS";')
+rep("width='240' height='160'%3E%3Ctext x='20' y='100' transform='rotate(-24 120 80)' font-family='Arial,sans-serif' font-size='64' font-weight='700' fill='%23393838' fill-opacity='.07'%3ETEST%3C",
+    "width='320' height='180'%3E%3Ctext x='10' y='110' transform='rotate(-20 160 90)' font-family='Arial,sans-serif' font-size='56' font-weight='700' fill='%23393838' fill-opacity='.07'%3EOBOLUS%3C")
+rep('<strong>TESTOVACÍ VERZE – částky nejsou skutečné</strong>','<strong>TESTOVACÍ VERZE – částky v obolech, ne v korunách</strong>')
+rep('<title>TEST – Honorářová','<title>Obolus – Honorářová')
+if re.search(r'\bTEST\b',s): print("POZOR: zbylo TEST", [s[m.start()-30:m.start()+10] for m in re.finditer(r'\bTEST\b',s)])
 if re.search(r'\bKč\b',s): print("POZOR: zbylo Kč:",[m.start() for m in re.finditer(r'\bKč\b',s)])
-assert not re.search(r'aday:\s*1\d{4}',s)
+assert 'aday:1, mday:0.8,' in s
 open(dst,'w',encoding='utf8').write(s)
 print("ok")
