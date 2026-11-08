@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TEST – Honorářová kalkulačka AČK</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Testovací verze honorářové kalkulačky AČK. Všechny částky jsou smyšlené.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Antonio:wght@600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* paleta webu AČK (ceskam.cz) */
+  --bg:#BAECF6;        /* tyrkysové pozadí */
+  --panel:#FFFFFF;
+  --ink:#393838;       /* grafit */
+  --muted:#56676B;
+  --line:#BCD3D8;
+  --rec:#D92D20;
+  --prep:#2A8DA3;      /* příprava */
+  --shoot:#393838;     /* natáčení */
+  --post:#7B5BA8;      /* postprodukce */
+  --extra:#B5821F;     /* příplatky */
+  --readout:#1A1A1A;   /* černá jako tlačítka na webu */
+  --readout-ink:#F4FBFD;
+  --radius:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F2A30; --panel:#16363E; --ink:#E3F6FA; --muted:#9DC3CB; --line:#2B5560;
+    --shoot:#E3F6FA; --prep:#6FC0D2; --post:#C0A2E6; --extra:#E5B456; --readout:#05171B;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Open Sans",system-ui,sans-serif;
+  font-size:16px;line-height:1.5;
+}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+
+/* Hlavička */
+header{padding:40px 0 24px}
+h1{
+  font-size:clamp(34px,6vw,60px);line-height:1.02;margin:0 0 12px;
+  font-family:"Antonio","Arial Narrow",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:0;max-width:16ch;
+}
+.lede{color:var(--muted);max-width:60ch;margin:0}
+
+/* Rozvržení */
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start;padding-bottom:64px}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+
+/* Fáze */
+.phase{background:var(--panel);border-radius:var(--radius);padding:20px;margin-bottom:16px;border-left:6px solid var(--c)}
+.phase[data-k="base"]{--c:#8FC9D5}
+.phase[data-k="prep"]{--c:var(--prep)}
+.phase[data-k="shoot"]{--c:var(--shoot)}
+.phase[data-k="post"]{--c:var(--post)}
+.phase[data-k="extra"]{--c:var(--extra)}
+.phase h2{
+  margin:0 0 4px;font-family:"Antonio","Arial Narrow",sans-serif;font-size:28px;line-height:1.1;font-weight:700;
+  display:flex;gap:10px;align-items:baseline;
+}
+.phase h2 .n{color:var(--c)}
+.phase .hint{color:var(--muted);font-size:14px;margin:0 0 16px;max-width:62ch}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px 16px}
+label{display:block;font-size:14px;color:var(--muted)}
+label > span{display:block;margin-bottom:4px}
+input[type=number],select{
+  width:100%;font:inherit;color:var(--ink);background:transparent;
+  border:1px solid var(--line);border-radius:4px;padding:8px 10px;
+  font-variant-numeric:tabular-nums;
+}
+input[type=number]:focus,select:focus,button:focus-visible,input[type=checkbox]:focus-visible{outline:3px solid var(--prep);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:15px;margin-top:14px}
+.check input{margin-top:4px;width:18px;height:18px;accent-color:var(--rec)}
+.min{display:block;margin-top:4px;font-size:13px}
+.min.hit{color:var(--rec)}
+.unit{position:relative}
+.unit input{padding-right:46px}
+.unit::after{content:attr(data-u);position:absolute;right:10px;bottom:9px;color:var(--muted);font-size:14px;pointer-events:none}
+.seg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:4px}
+.seg button{flex:1;font:inherit;font-size:14px;border:0;background:transparent;color:var(--ink);padding:8px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--panel)}
+
+/* Displej */
+.readout{position:sticky;top:16px}
+.screen{
+  background:var(--readout);color:var(--readout-ink);border-radius:var(--radius);padding:20px;
+}
+.screen .top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#9AA6B4}
+.rec{display:inline-flex;align-items:center;gap:8px}
+.rec i{width:10px;height:10px;border-radius:50%;background:var(--rec);box-shadow:0 0 0 0 rgba(217,45,32,.6)}
+.rec.pulse i{animation:pulse .7s ease-out}
+@keyframes pulse{from{box-shadow:0 0 0 0 rgba(217,45,32,.7)}to{box-shadow:0 0 0 12px rgba(217,45,32,0)}}
+@media (prefers-reduced-motion:reduce){.rec.pulse i{animation:none}}
+.total{
+  font-family:"Antonio","Arial Narrow",sans-serif;font-size:clamp(48px,10vw,68px);font-weight:700;
+  font-variant-numeric:tabular-nums;line-height:1;margin:18px 0 6px;letter-spacing:-.02em;white-space:nowrap;
+}
+.total small{font-size:.4em;margin-left:6px}
+.sub{color:#9AA6B4;font-size:14px;margin:0 0 18px}
+.bar{display:flex;height:14px;border-radius:3px;overflow:hidden;background:#2A3442;margin-bottom:14px}
+.bar span{display:block;height:100%;transition:width .25s}
+.legend{list-style:none;margin:0;padding:0;font-size:15px}
+.legend li{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:6px 0;border-top:1px solid #263040}
+.legend li:first-child{border-top:0}
+.legend .sw{width:12px;height:12px;border-radius:2px}
+.legend .v{font-variant-numeric:tabular-nums}
+.legend .d{display:block;color:#9AA6B4;font-size:13px}
+.vat[hidden]{display:none}
+.vat{margin-top:12px;padding-top:12px;border-top:1px solid #263040;display:flex;justify-content:space-between;font-size:15px}
+
+.box{background:var(--panel);border-radius:var(--radius);padding:18px 20px;margin-top:16px}
+.box h3{margin:0 0 6px;font-family:"Antonio","Arial Narrow",sans-serif;font-size:22px;font-weight:700}
+.box p{margin:0 0 10px;font-size:15px}
+.cmp{font-variant-numeric:tabular-nums}
+.verdict{font-weight:700}
+.verdict.bad{color:var(--rec)}
+.crew{width:100%;border-collapse:collapse;font-size:15px;font-variant-numeric:tabular-nums}
+.crew td{padding:6px 0;border-top:1px solid var(--line)}
+.crew td:last-child{text-align:right}
+.crew tr:first-child td{border-top:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.btn{font:inherit;font-size:15px;font-weight:600;border-radius:4px;padding:10px 14px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--panel)}
+.btn.ghost{background:transparent;color:var(--ink)}
+.toast{font-size:14px;color:var(--muted);min-height:1.5em;margin-top:8px}
+
+.mini{display:none}
+@media (max-width:900px){
+  .mini{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:5;justify-content:space-between;align-items:center;
+    background:var(--readout);color:var(--readout-ink);padding:12px 16px;font-variant-numeric:tabular-nums}
+  .mini strong{font-family:"Antonio","Arial Narrow",sans-serif;font-size:26px}
+  .mini a{font-size:14px;color:#9AA6B4}
+  body{padding-bottom:64px}
+}
+@media print{.mini{display:none!important}}
+footer{border-top:1px solid var(--line);padding:24px 0 48px;color:var(--muted);font-size:14px}
+footer p{max-width:72ch;margin:0 0 10px}
+
+@media print{
+  body{background:#fff;color:#000}
+  .phase,.box{border:1px solid #bbb}
+  .actions,.seg,footer .noprint{display:none}
+  .grid{grid-template-columns:1fr}
+  .readout{position:static}
+  .screen{background:#fff;color:#000;border:2px solid #000}
+}
+
+/* ===== TESTOVACÍ REŽIM ===== */
+:root{--test:#FFD400}
+body{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160'%3E%3Ctext x='20' y='100' transform='rotate(-24 120 80)' font-family='Arial,sans-serif' font-size='64' font-weight='700' fill='%23393838' fill-opacity='.07'%3ETEST%3C/text%3E%3C/svg%3E");
+  background-attachment:fixed;
+}
+.testbar{
+  position:sticky;top:0;z-index:10;
+  background:repeating-linear-gradient(-45deg,var(--test) 0 18px,#1A1A1A 18px 36px);
+  padding:6px 0;
+}
+.testbar .in{
+  max-width:1120px;margin:0 auto;padding:0 16px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;justify-content:space-between;
+}
+.testbar strong,.testbar a{
+  background:#1A1A1A;color:var(--test);padding:4px 10px;font-weight:700;font-size:15px;
+}
+.testbar a{background:var(--test);color:#1A1A1A;text-decoration:underline}
+.screen{outline:6px solid var(--test);outline-offset:-6px}
+.screen .top{justify-content:flex-start}
+.screen .top #vatLabel{margin-left:auto}
+.screen .top::after{content:"TEST";background:var(--test);color:#1A1A1A;font-weight:700;padding:2px 8px;margin-left:8px}
+.phase,.box{box-shadow:inset 0 0 0 2px rgba(255,212,0,.9)}
+.mini{border-top:6px solid var(--test)}
+@media print{
+  .testbar{position:static;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div class="testbar" role="note">
+  <div class="in">
+    <strong>TESTOVACÍ VERZE – částky nejsou skutečné</strong>
+    <a href="../">Přejít na ostrou verzi</a>
+  </div>
+</div>
+<div class="wrap">
+  <header>
+    <h1>Honorářová kalkulačka kameramana (test)</h1>
+    <p class="lede">Příprava, natáčení a postprodukce jsou tři různé práce. Kalkulačka je spočítá zvlášť a ukáže, kolik vychází na jeden odpracovaný den. V testovací verzi jsou všechny sazby smyšlené a počítají se v jednotkách TEST místo korun. Příprava a postprodukce se platí nejméně 50 % denní sazby.</p>
+  </header>
+
+  <div class="grid">
+    <form id="f" autocomplete="off" onsubmit="return false">
+
+      <section class="phase" data-k="base" aria-labelledby="h-base">
+        <h2 id="h-base">Projekt a denní sazba</h2>
+        <p class="hint">Vyberte typ projektu. Denní sazba se doplní testovací hodnotou a můžete ji přepsat.</p>
+        <div class="row">
+          <label><span>Typ projektu</span>
+            <select id="cat"></select>
+          </label>
+          <label><span>Úroveň sazby</span>
+            <div class="seg" role="group" aria-label="Úroveň sazby">
+              <button type="button" data-level="aday" aria-pressed="true">Důstojná</button>
+              <button type="button" data-level="mday" aria-pressed="false">Minimální</button>
+            </div>
+          </label>
+          <label><span>Denní sazba za natáčecí den</span>
+            <div class="unit" data-u="TEST"><input type="number" id="rate" min="0" step="5" inputmode="numeric"></div>
+          </label>
+        </div>
+      </section>
+
+      <section class="phase" data-k="prep" aria-labelledby="h-prep">
+        <h2 id="h-prep"><span class="n">1</span> Příprava</h2>
+        <p class="hint">Obhlídky, kamerové testy, technické schůzky, práce s režisérem. Kameramani v průzkumu odhadují 1 až 1,5 dne přípravy na každý natáčecí den.</p>
+        <div class="row">
+          <label><span>Přípravné dny</span><input type="number" id="prepDays" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Sazba za přípravný den</span><div class="unit" data-u="%"><input type="number" id="prepPct" min="50" max="200" step="5" inputmode="numeric" aria-describedby="minPrep"></div><small class="min" id="minPrep">Minimum AČK je 50 %, níž to nejde.</small></label>
+        </div>
+        <button type="button" class="btn ghost" id="suggestPrep" style="margin-top:12px">Doplnit 1,2 dne na natáčecí den</button>
+      </section>
+
+      <section class="phase" data-k="shoot" aria-labelledby="h-shoot">
+        <h2 id="h-shoot"><span class="n">2</span> Natáčení</h2>
+        <p class="hint">Natáčecí dny za plnou denní sazbu.</p>
+        <div class="row">
+          <label><span>Natáčecí dny</span><input type="number" id="shootDays" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Délka směny</span><div class="unit" data-u="h"><input type="number" id="shift" min="1" max="16" step="1" inputmode="numeric"></div></label>
+        </div>
+        <label class="check"><input type="checkbox" id="operate"> <span>Hlavní kameraman si sám švenkuje. Ke každému natáčecímu dni se připočte honorář švenkra.</span></label>
+        <div class="row" style="margin-top:10px">
+          <label><span>Honorář švenkra z denní sazby</span><div class="unit" data-u="%"><input type="number" id="opPct" min="0" max="100" step="5" inputmode="numeric"></div></label>
+        </div>
+      </section>
+
+      <section class="phase" data-k="post" aria-labelledby="h-post">
+        <h2 id="h-post"><span class="n">3</span> Postprodukce</h2>
+        <p class="hint">Color grading, kontrola masteru, VFX konzultace, schvalování kopií.</p>
+        <div class="row">
+          <label><span>Dny postprodukce</span><input type="number" id="postDays" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Sazba za den postprodukce</span><div class="unit" data-u="%"><input type="number" id="postPct" min="50" max="200" step="5" inputmode="numeric" aria-describedby="minPost"></div><small class="min" id="minPost">Minimum AČK je 50 %, níž to nejde.</small></label>
+        </div>
+      </section>
+
+      <section class="phase" data-k="extra" aria-labelledby="h-extra">
+        <h2 id="h-extra">Příplatky</h2>
+        <p class="hint">Výše příplatků je návrh k diskusi. Upravte ji podle smlouvy.</p>
+        <div class="row">
+          <label><span>Přesčasové hodiny celkem</span><input type="number" id="otHours" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Přesčasová hodina</span><div class="unit" data-u="%"><input type="number" id="otPct" min="100" step="5" inputmode="numeric"></div></label>
+          <label><span>Noční natáčecí dny</span><input type="number" id="nightDays" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Příplatek za noc</span><div class="unit" data-u="%"><input type="number" id="nightPct" min="0" step="5" inputmode="numeric"></div></label>
+          <label><span>Dny o víkendu a svátcích</span><input type="number" id="holDays" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Příplatek za víkend a svátek</span><div class="unit" data-u="%"><input type="number" id="holPct" min="0" step="5" inputmode="numeric"></div></label>
+          <label><span>Cestovní dny</span><input type="number" id="travelDays" min="0" step="1" inputmode="numeric"></label>
+          <label><span>Sazba za cestovní den</span><div class="unit" data-u="%"><input type="number" id="travelPct" min="0" max="100" step="5" inputmode="numeric"></div></label>
+        </div>
+      </section>
+    </form>
+
+    <div class="mini"><a href="#vysledek">Honorář celkem</a><strong id="miniTotal">0 TEST</strong></div>
+    <aside class="readout" id="vysledek" aria-live="polite">
+      <div class="screen">
+        <div class="top"><span class="rec" id="rec"><i aria-hidden="true"></i> Honorář celkem</span><span id="vatLabel">bez DPH</span></div>
+        <div class="total" id="total">0<small>TEST</small></div>
+        <p class="sub" id="perDay"></p>
+        <div class="bar" id="bar" aria-hidden="true"></div>
+        <ul class="legend" id="legend"></ul>
+        <div class="vat" id="vatRow" hidden><span>Včetně DPH 21 %</span><span id="vatTotal"></span></div>
+      </div>
+
+      <div class="box">
+        <label class="check" style="margin-top:0"><input type="checkbox" id="vat"> <span>Jsem plátce DPH</span></label>
+      </div>
+
+      <div class="box">
+        <h3>Srovnání s nabízeným paušálem</h3>
+        <p style="color:var(--muted)">Zadejte paušál z nabídky produkce. Kalkulačka ho rozpočítá na všechny odpracované dny.</p>
+        <label><span>Nabízený paušál</span><div class="unit" data-u="TEST"><input type="number" id="flat" min="0" step="10" inputmode="numeric"></div></label>
+        <div id="cmp" class="cmp" style="margin-top:12px"></div>
+      </div>
+
+      <div class="box">
+        <h3>Odvozené sazby štábu</h3>
+        <p style="color:var(--muted)">Podíl z denní sazby hlavního kameramana, jak ho navrhli respondenti průzkumu.</p>
+        <table class="crew" id="crew"></table>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn" id="copy">Kopírovat souhrn</button>
+        <button type="button" class="btn ghost" id="share">Kopírovat odkaz</button>
+        <button type="button" class="btn ghost" id="print">Tisk</button>
+        <button type="button" class="btn ghost" id="reset">Výchozí hodnoty</button>
+      </div>
+      <div class="toast" id="toast" role="status"></div>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Testovací verze. Všechny sazby a částky jsou smyšlené, uvádějí se v jednotkách TEST a neodpovídají průzkumu AČK ani skutečným honorářům. Slouží jen k vyzkoušení ovládání a výpočtu.</p>
+    <p class="noprint">Asociace českých kameramanů. Výpočet probíhá jen ve vašem prohlížeči, nic se neodesílá.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  // TESTOVACÍ REŽIM: smyšlené sazby v jednotkách TEST, neodpovídají průzkumu
+  // Minimum AČK pro přípravu a postprodukci (% denní sazby); nižší hodnotu aplikace nepřijme
+  const MIN_PCT = 50;
+  const CATS = [
+    {id:"film",  name:"Film",                     aday:100, mday:80, shoot:25, prep:30, post:7},
+    {id:"ser",   name:"TV seriál",                   aday:100, mday:80, shoot:40, prep:30, post:10},
+    {id:"seq",   name:"Sekvenční natáčení",          aday:100, mday:80,  shoot:60, prep:10, post:5},
+    {id:"bro",   name:"TV přenos",                   aday:100, mday:80,  shoot:3,  prep:2,  post:0},
+    {id:"doc",   name:"Hodinový dokument",           aday:100, mday:80,  shoot:10, prep:5,  post:3},
+    {id:"dos",   name:"Jednorázový dokumentární cyklus", aday:100, mday:80, shoot:20, prep:8, post:5},
+    {id:"pub",   name:"Permanentní dokumentární cyklus", aday:100, mday:80, shoot:4, prep:1, post:1},
+  ];
+  const DEFAULTS = {cat:"film", level:"aday", prepPct:50, postPct:50, shift:10, operate:false, opPct:60,
+    otHours:0, otPct:150, nightDays:0, nightPct:25, holDays:0, holPct:50, travelDays:0, travelPct:50, flat:0, vat:false};
+  const CREW = [["Švenkr",62.5],["Ostřič (1. asistent)",40],["2. asistent kamery",30]];
+  const NUM = ["rate","prepDays","prepPct","shootDays","shift","opPct","postDays","postPct","otHours","otPct","nightDays","nightPct","holDays","holPct","travelDays","travelPct","flat"];
+  const $ = id => document.getElementById(id);
+  const kc = n => Math.round(n).toLocaleString("cs-CZ") + " TEST";
+  const v = id => Math.max(0, parseFloat($(id).value) || 0);
+  const pct = id => Math.max(MIN_PCT, v(id));
+  function clampPct(){
+    ["prepPct","postPct"].forEach(id => {
+      const el = $(id), low = (parseFloat(el.value) || 0) < MIN_PCT;
+      if(low) el.value = MIN_PCT;
+      $(id === "prepPct" ? "minPrep" : "minPost").classList.toggle("hit", low);
+    });
+  }
+  let level = "aday";
+
+  const sel = $("cat");
+  CATS.forEach(c => sel.add(new Option(c.name, c.id)));
+
+  function setLevel(l){
+    level = l;
+    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.level === l));
+  }
+  function applyCat(keepDays){
+    const c = CATS.find(x => x.id === sel.value);
+    $("rate").value = c[level];
+    if(!keepDays){ $("shootDays").value = c.shoot; $("prepDays").value = c.prep; $("postDays").value = c.post; }
+  }
+  function load(state){
+    const s = {...DEFAULTS, ...state};
+    sel.value = CATS.some(c => c.id === s.cat) ? s.cat : "film";
+    setLevel(s.level === "mday" ? "mday" : "aday");
+    applyCat(false);
+    NUM.forEach(k => { if(s[k] !== undefined) $(k).value = s[k]; });
+    $("operate").checked = !!s.operate && s.operate !== "0";
+    $("vat").checked = !!s.vat && s.vat !== "0";
+  }
+  function state(){
+    const s = {cat: sel.value, level};
+    NUM.forEach(k => s[k] = $(k).value);
+    s.operate = $("operate").checked ? 1 : 0;
+    s.vat = $("vat").checked ? 1 : 0;
+    return s;
+  }
+
+  function calc(){
+    const rate = v("rate"), sd = v("shootDays");
+    const prep = v("prepDays") * rate * pct("prepPct")/100;
+    const shoot = sd * rate;
+    const op = $("operate").checked ? sd * rate * v("opPct")/100 : 0;
+    const post = v("postDays") * rate * pct("postPct")/100;
+    const hourly = rate / Math.max(1, v("shift"));
+    const extra = v("otHours") * hourly * v("otPct")/100
+                + v("nightDays") * rate * v("nightPct")/100
+                + v("holDays") * rate * v("holPct")/100
+                + v("travelDays") * rate * v("travelPct")/100;
+    const days = v("prepDays") + sd + v("postDays") + v("travelDays");
+    const total = prep + shoot + op + post + extra;
+    return {rate, prep, shoot, op, post, extra, total, days, hourly};
+  }
+
+  function render(){
+    const r = calc();
+    $("miniTotal").textContent = kc(r.total);
+    $("total").innerHTML = Math.round(r.total).toLocaleString("cs-CZ") + "<small>TEST</small>";
+    $("perDay").textContent = r.days ? `${r.days} odpracovaných dní, v průměru ${kc(r.total / r.days)} za den` : "Zadejte počet dní.";
+    const parts = [
+      ["Příprava", r.prep, "#3FA7BF", `${v("prepDays")} dní × ${pct("prepPct")} % sazby`],
+      ["Natáčení", r.shoot, "#BAECF6", `${v("shootDays")} dní × ${kc(r.rate)}`],
+      ["Švenkování", r.op, "#7A8796", `${v("opPct")} % sazby za natáčecí den`],
+      ["Postprodukce", r.post, "#A784D6", `${v("postDays")} dní × ${pct("postPct")} % sazby`],
+      ["Příplatky", r.extra, "#E5B456", `přesčasová hodina ${kc(r.hourly * v("otPct")/100)}`],
+    ].filter(p => p[1] > 0 || p[0] === "Natáčení");
+    $("bar").innerHTML = parts.map(p => `<span style="width:${r.total ? p[1]/r.total*100 : 0}%;background:${p[2]}"></span>`).join("");
+    $("legend").innerHTML = parts.map(p => `<li><span class="sw" style="background:${p[2]}"></span><span>${p[0]}<span class="d">${p[3]}</span></span><span class="v">${kc(p[1])}</span></li>`).join("");
+    const vat = $("vat").checked;
+    $("vatRow").hidden = !vat; $("vatTotal").textContent = kc(r.total * 1.21);
+
+    const flat = v("flat");
+    if(flat > 0 && r.days > 0){
+      const eff = flat / r.days, diff = r.total - flat, focus = r.rate * 0.4;
+      let msg = `<p>Paušál vychází na <strong>${kc(eff)}</strong> za odpracovaný den, tedy ${Math.round(eff / r.rate * 100)} % vaší denní sazby.</p>`;
+      msg += diff > 0 ? `<p class="verdict bad">Oproti výpočtu chybí ${kc(diff)}.</p>` : `<p class="verdict">Paušál pokrývá výpočet s rezervou ${kc(-diff)}.</p>`;
+      if(eff < focus) msg += `<p>To je méně než odvozená denní sazba ostřiče (${kc(focus)}).</p>`;
+      $("cmp").innerHTML = msg;
+    } else $("cmp").innerHTML = "";
+
+    $("crew").innerHTML = CREW.map(([n,p]) => `<tr><td>${n} <span style="color:var(--muted)">${String(p).replace(".",",")} %</span></td><td>${kc(r.rate * p/100)}</td></tr>`).join("");
+
+    try{ history.replaceState(null, "", "#" + new URLSearchParams(state()).toString()); }catch(e){ /* náhled bez adresy */ }
+    const rec = $("rec"); rec.classList.remove("pulse"); void rec.offsetWidth; rec.classList.add("pulse");
+  }
+
+  function summary(){
+    const r = calc(), c = CATS.find(x => x.id === sel.value);
+    const L = [
+      `TESTOVACÍ VERZE (smyšlené částky) – Honorář kameramana – ${c.name}`,
+      `Denní sazba: ${kc(r.rate)}`,
+      `Příprava: ${v("prepDays")} dní × ${pct("prepPct")} % = ${kc(r.prep)}`,
+      `Natáčení: ${v("shootDays")} dní = ${kc(r.shoot)}`,
+    ];
+    if(r.op) L.push(`Švenkování: ${v("opPct")} % za natáčecí den = ${kc(r.op)}`);
+    L.push(`Postprodukce: ${v("postDays")} dní × ${pct("postPct")} % = ${kc(r.post)}`);
+    if(r.extra) L.push(`Příplatky: ${kc(r.extra)}`);
+    L.push(`Celkem bez DPH: ${kc(r.total)}`);
+    if($("vat").checked) L.push(`Celkem s DPH 21 %: ${kc(r.total * 1.21)}`);
+    L.push("", "Spočítáno testovací verzí kalkulačky AČK: " + location.href);
+    return L.join("\n");
+  }
+  async function copy(text, ok){
+    try{ await navigator.clipboard.writeText(text); $("toast").textContent = ok; return; }catch(e){}
+    try{
+      const t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly","");
+      t.style.position = "fixed"; t.style.opacity = "0"; document.body.appendChild(t); t.select();
+      const done = document.execCommand("copy"); t.remove();
+      $("toast").textContent = done ? ok : "Kopírování se nepodařilo. Označte text ručně.";
+    }catch(e){ $("toast").textContent = "Kopírování se nepodařilo. Označte text ručně."; }
+  }
+
+  sel.addEventListener("change", () => { applyCat(false); render(); });
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { setLevel(b.dataset.level); applyCat(true); render(); }));
+  $("f").addEventListener("input", render);
+  ["prepPct","postPct"].forEach(id => $(id).addEventListener("change", () => { clampPct(); render(); }));
+  $("vat").addEventListener("change", render);
+  $("flat").addEventListener("input", render);
+  $("suggestPrep").addEventListener("click", () => { $("prepDays").value = Math.round(v("shootDays") * 1.2); render(); });
+  $("copy").addEventListener("click", () => copy(summary(), "Souhrn je zkopírovaný."));
+  $("share").addEventListener("click", () => copy(location.href, "Odkaz s vyplněnými hodnotami je zkopírovaný."));
+  $("print").addEventListener("click", () => window.print());
+  $("reset").addEventListener("click", () => { load({}); clampPct(); render(); $("toast").textContent = "Hodnoty jsou nastavené na testovací výchozí."; });
+
+  let fromHash = {};
+  try{ fromHash = Object.fromEntries(new URLSearchParams(location.hash.slice(1))); }catch(e){}
+  load(fromHash);
+  clampPct();
+  render();
+})();
+</script>
+</body>
+</html>
