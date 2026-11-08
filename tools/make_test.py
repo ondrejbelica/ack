@@ -94,7 +94,7 @@ rep('<strong id="miniTotal">0 TEST</strong>','<strong id="miniTotal">0 obolů</s
 rep('data-u="TEST"','data-u="obolů"')
 rep('id="rate" min="0" step="5"','id="rate" min="0" step="0.1"')
 rep('id="flat" min="0" step="10"','id="flat" min="0" step="0.5"')
-rep('<h1>Honorářová kalkulačka kameramana (test)</h1>','<h1>Honorářová kalkulačka kameramana (obolus)</h1>')
+rep('<h1>Honorářová kalkulačka kameramana (test)</h1>','<h1>Honorářová kalkulačka kameramana (TEST)</h1>')
 rep('V testovací verzi jsou všechny sazby smyšlené a počítají se v jednotkách TEST místo korun.',
     'V testovací verzi se nepočítá v korunách, ale v obolech: jeden obolus je důstojná sazba za jeden natáčecí den.')
 rep('Denní sazba se doplní testovací hodnotou a můžete ji přepsat.',
